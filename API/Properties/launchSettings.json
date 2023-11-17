@@ -1,0 +1,45 @@
+{
+  "profiles": {
+    "http": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "SolveChess_MySQLConnectionString": "server=bokmanite.xyz;database=solvechess-authentication;uid=auth_api;password=2Vv-XfrNuzKe!PXG;",
+        "SolveChess_JwtSecret": "s@*RrS1C|Ffg[z.3OyiDT<_2G^LJB;6Kig'9y.oNWggw=aCvJks`Xx2IAmlQKw"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:7120"
+    },
+    "https": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "SolveChess_MySQLConnectionString": "server=bokmanite.xyz;database=solvechess-authentication;uid=auth_api;password=2Vv-XfrNuzKe!PXG;",
+        "SolveChess_JwtSecret": "s@*RrS1C|Ffg[z.3OyiDT<_2G^LJB;6Kig'9y.oNWggw=aCvJks`Xx2IAmlQKw"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7121;http://localhost:7120"
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  },
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:5625",
+      "sslPort": 44301
+    }
+  }
+}

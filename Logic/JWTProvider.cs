@@ -4,28 +4,33 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
-namespace SolveChess_Auth_API;
+namespace SolveChess.Logic;
 
 public class JWTProvider
 {
 
-    private readonly string secretKey = "UeG7K:3xpA:VG@@#YZB{{+Dau#Ar$oaviSx$$?h;`9JSaYi4m]lDnrCK$j,g|X*";
-    private readonly string issuer = "SolveChess Authenticator";
-    private readonly string audience = "SolveChess Microservice";
+    private readonly string _secretKey;
+    private readonly string _issuer = "SolveChess Authenticator";
+    private readonly string _audience = "SolveChess API";
 
-    public string GenerateToken(string username)
+    public JWTProvider(string secretKey)
     {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+        _secretKey = secretKey;
+    }
+
+    public string GenerateToken(string userId)
+    {
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
         {
-            new Claim(ClaimTypes.Name, username),
+            new Claim("Id", userId),
         };
 
         var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
+            issuer: _issuer,
+            audience: _audience,
             claims: claims,
             expires: DateTime.UtcNow.AddHours(1),
             signingCredentials: credentials
