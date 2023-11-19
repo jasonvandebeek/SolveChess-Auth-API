@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+    environment {
+        dockerRegistry = "jasonvandebeek/solvechess-auth-api"
+        dockerRegistryCredential = 'dockerhub_id'     
+    }
+    stages {
+        stage('Build .NET Application') {
+            steps {
+                script {
+                    sh "dotnet build"
+                }
+            }
+        }
+		stage('Run .NET Tests') {
+			steps {
+				script {
+					sh "dotnet test"
+				}
+			}
+		}
+		stage('SonarQube Analysis') {
+			def scannerHome = tool 'MSBuild SonarScanner'
+			withSonarQubeEnv() {
+				sh "dotnet ${scannerHome}/SonarScanner.MSBuild.dll begin /k:\"jasonvandebeek_SolveChess-Auth-API_AYvoPvqhxO9MFOdCobMh\""
+				sh "dotnet build"
+				sh "dotnet ${scannerHome}/SonarScanner.MSBuild.dll end"
+			}
+		}
+		stage('Build Docker Image') {
+			steps {
+				script {
+					def testsPassed = currentBuild.resultIsBetterOrEqualTo('SUCCESS')
+
+					if (testsPassed) {
+						dockerImage = docker.build "${dockerRegistry}:${BUILD_NUMBER}"
+					} else {
+						error("Tests failed. Skipping Docker image build and publish.")
+					}
+				}
+			}
+		}
+        stage('Publish to Docker Hub') {
+            steps {
+                script {
+                    docker.withRegistry('', dockerRegistryCredential) {
+                        dockerImage.push()
+                    }
+                }
+            }
+        }
+        stage('Cleaning up') {
+            steps {
+                sh "docker rmi ${dockerRegistry}:${BUILD_NUMBER}"
+            }
+        }
+    }
+}
