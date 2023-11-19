@@ -4,6 +4,9 @@ pipeline {
         dockerRegistry = "jasonvandebeek/solvechess-auth-api"
         dockerRegistryCredential = 'dockerhub_id'     
     }
+	tools {
+        scannerHome = 'MSBuild SonarScanner'
+    }
     stages {
         stage('Build .NET Application') {
             steps {
@@ -20,11 +23,14 @@ pipeline {
 			}
 		}
 		stage('SonarQube Analysis') {
-			def scannerHome = tool 'MSBuild SonarScanner'
-			withSonarQubeEnv() {
-				sh "dotnet ${scannerHome}/SonarScanner.MSBuild.dll begin /k:\"jasonvandebeek_SolveChess-Auth-API_AYvoPvqhxO9MFOdCobMh\""
-				sh "dotnet build"
-				sh "dotnet ${scannerHome}/SonarScanner.MSBuild.dll end"
+			steps {
+				script {
+					withSonarQubeEnv() {
+						sh "dotnet ${scannerHome}/SonarScanner.MSBuild.dll begin /k:\"jasonvandebeek_SolveChess-Auth-API_AYvoPvqhxO9MFOdCobMh\""
+						sh "dotnet build"
+						sh "dotnet ${scannerHome}/SonarScanner.MSBuild.dll end"
+					}
+				}
 			}
 		}
 		stage('Build Docker Image') {
