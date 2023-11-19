@@ -21,13 +21,11 @@ pipeline {
 		}
 		stage('SonarQube Analysis') {
 			steps {
-				script {
-					withSonarQubeEnv('SonarQube') {
-						def scannerHome = 'MSBuild SonarScanner'
-						sh "dotnet ${scannerHome}/SonarScanner.MSBuild.dll begin /k:\"jasonvandebeek_SolveChess-Auth-API_AYvoPvqhxO9MFOdCobMh\""
-						sh "dotnet build"
-						sh "dotnet ${scannerHome}/SonarScanner.MSBuild.dll end"
-					}
+				withSonarQubeEnv('SonarQube') {
+					def scannerHome = 'MSBuild SonarScanner'
+					sh "dotnet ${scannerHome}/SonarScanner.MSBuild.dll begin /k:\"jasonvandebeek_SolveChess-Auth-API_AYvoPvqhxO9MFOdCobMh\""
+					sh "dotnet build"
+					sh "dotnet ${scannerHome}/SonarScanner.MSBuild.dll end"
 				}
 			}
 		}
