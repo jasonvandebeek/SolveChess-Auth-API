@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using SolveChess.Logic.Attributes;
 using SolveChess.Logic.DAL;
 using SolveChess.Logic.DTO;
+using SolveChess.Logic.Interfaces;
 using SolveChess.Logic.ServiceInterfaces;
 
 namespace SolveChess.Logic.Service;
@@ -10,19 +11,20 @@ namespace SolveChess.Logic.Service;
 public class AuthenticationService : IAuthenticationService
 {
 
-    private readonly IAuthenticationDal _authenticationDAL;
-    private readonly JwtProvider _jwtProvider;
+    private readonly IAuthenticationDal _authenticationDal;
+    private readonly IJwtProvider _jwtProvider;
+    private readonly HttpClient _httpClient;
 
-    public AuthenticationService(IAuthenticationDal authenticaitonDAL, string jwtSecret)
+    public AuthenticationService(IAuthenticationDal authenticationDal, IJwtProvider jwtProvider, HttpClient httpClient)
     {
-        _authenticationDAL = authenticaitonDAL;
-        _jwtProvider = new JwtProvider(jwtSecret);
+        _authenticationDal = authenticationDal;
+        _jwtProvider = jwtProvider;
+        _httpClient = httpClient;
     }
 
     public async Task<string?> AuthenticateGoogle(string accessToken)
     {
-        using var client = new HttpClient();
-        var response = await client.GetAsync($"https://www.googleapis.com/oauth2/v3/userinfo?access_token={accessToken}");
+        var response = await _httpClient.GetAsync($"https://www.googleapis.com/oauth2/v3/userinfo?access_token={accessToken}");
         if (!response.IsSuccessStatusCode)
             return null;
 
@@ -32,7 +34,7 @@ public class AuthenticationService : IAuthenticationService
         if(email == null) 
             return null;
 
-        UserDto user = _authenticationDAL.GetUser(email) ?? _authenticationDAL.CreateUser(email, null, AuthType.GOOGLE);
+        UserDto user = _authenticationDal.GetUser(email) ?? _authenticationDal.CreateUser(email, null, AuthType.GOOGLE);
 
         return _jwtProvider.GenerateToken(user.Id);
     }

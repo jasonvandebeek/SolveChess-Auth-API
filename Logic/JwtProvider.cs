@@ -3,10 +3,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using SolveChess.Logic.Interfaces;
 
 namespace SolveChess.Logic;
 
-public class JwtProvider
+public class JwtProvider : IJwtProvider
 {
 
     private readonly string _secretKey;

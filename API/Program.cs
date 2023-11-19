@@ -7,6 +7,9 @@ using System.Text;
 using AuthenticationService = SolveChess.Logic.Service.AuthenticationService;
 using IAuthenticationService = SolveChess.Logic.ServiceInterfaces.IAuthenticationService;
 using SolveChess.API.Exceptions;
+using SolveChess.Logic.DAL;
+using SolveChess.Logic.Interfaces;
+using SolveChess.Logic;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,12 +28,21 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySQL(mysqlConnectionString);
 });
 
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>(provider =>
+builder.Services.AddScoped<IAuthenticationDal, AuthenticationDal>(provider =>
 {
     var dbContextOptions = provider.GetRequiredService<DbContextOptions<AppDbContext>>();
 
-    return new AuthenticationService(new AuthenticationDal(dbContextOptions), jwtSecret);
+    return new AuthenticationDal(dbContextOptions);
 });
+
+builder.Services.AddScoped<IJwtProvider, JwtProvider>(options =>
+{
+    return new JwtProvider(jwtSecret);
+});
+
+builder.Services.AddScoped<HttpClient>();
+
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 if(builder.Environment.IsDevelopment())
 {
