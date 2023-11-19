@@ -22,7 +22,7 @@ var jwtSecret = Environment.GetEnvironmentVariable("SolveChess_JwtSecret") ?? th
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseMySQL();
+    options.UseMySQL(mysqlConnectionString);
 });
 
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>(provider =>
