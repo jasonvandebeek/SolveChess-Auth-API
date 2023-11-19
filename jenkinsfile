@@ -2,7 +2,8 @@ pipeline {
     agent any
     environment {
         dockerRegistry = "jasonvandebeek/solvechess-auth-api"
-        dockerRegistryCredential = 'dockerhub_id'     
+        dockerRegistryCredential = 'dockerhub_id'  
+		scannerHome = tool 'SonarScanner for MSBuild'		
     }
     stages {
         stage('Build .NET Application') {
@@ -21,7 +22,7 @@ pipeline {
 		}
 		stage('SonarQube Analysis') {
 			steps {
-				def scannerHome = tool 'SonarScanner for MSBuild'
+				
 				withSonarQubeEnv('SonarQube') {
 					sh "dotnet ${scannerHome}/SonarScanner.MSBuild.dll begin /k:\"jasonvandebeek_SolveChess-Auth-API_AYvoPvqhxO9MFOdCobMh\""
 					sh "dotnet build"
