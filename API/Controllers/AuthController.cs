@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SolveChess.API.Models;
 using SolveChess.Logic.ServiceInterfaces;
 
@@ -16,7 +17,17 @@ public class AuthController : ControllerBase
         _authenticationService = authenticationService;
     }
 
-    [HttpPost("google")]
+    [HttpGet("userId")]
+    public IActionResult GetUserId()
+    {
+        string? userId = HttpContext.User.FindFirst("Id")?.Value;
+        if (userId == null)
+            return Ok(null);
+
+        return Ok(userId);
+    }
+
+    [HttpPost("google-login")]
     public async Task<IActionResult> GoogleLogin([FromBody] AccessTokenModel request)
     {
         string? jwtToken = await _authenticationService.AuthenticateGoogle(request.AccessToken);

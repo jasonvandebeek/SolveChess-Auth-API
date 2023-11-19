@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using SolveChess.DAL;
 using SolveChess.DAL.Model;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using AuthenticationService = SolveChess.Logic.Service.AuthenticationService;
 using IAuthenticationService = SolveChess.Logic.ServiceInterfaces.IAuthenticationService;
 
@@ -26,12 +29,46 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>(provid
     return new AuthenticationService(new AuthenticationDAL(dbContextOptions), jwtSecret);
 });
 
-builder.Services.AddCors(options =>
+if(builder.Environment.IsDevelopment())
 {
-    options.AddPolicy("AllowOrigin", builder => builder.WithOrigins("https://localhost:3000")
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials());
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowOrigin", builder => builder.WithOrigins("https://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials());
+    });
+}
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    var jwtSecret = Environment.GetEnvironmentVariable("SolveChess_JwtSecret") ?? throw new Exception("No jwt secret string found in .env variables!");
+
+    var tokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+        ValidIssuer = "SolveChess Authenticator",
+        ValidAudience = "SolveChess API",
+    };
+
+    options.TokenValidationParameters = tokenValidationParameters;
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            context.Token = context.Request.Cookies["AccessToken"];
+            return Task.CompletedTask;
+        }
+    };
 });
 
 var app = builder.Build();
