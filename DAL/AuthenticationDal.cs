@@ -7,17 +7,17 @@ using SolveChess.Logic.DTO;
 
 namespace SolveChess.DAL;
 
-public class AuthenticationDAL : IAuthenticationDAL
+public class AuthenticationDal : IAuthenticationDal
 {
 
     private readonly AppDbContext _dbContext;
 
-    public AuthenticationDAL(DbContextOptions<AppDbContext> options)
+    public AuthenticationDal(DbContextOptions<AppDbContext> options)
     {
         _dbContext = new AppDbContext(options);
     }
 
-    public UserDTO CreateUser(string email, string? password, AuthType authType)
+    public UserDto CreateUser(string email, string? password, AuthType authType)
     {
         string guid = Guid.NewGuid().ToString();
 
@@ -31,7 +31,7 @@ public class AuthenticationDAL : IAuthenticationDAL
         _dbContext.User.Add(user);
         _dbContext.SaveChanges();
 
-        var userDTO = new UserDTO() 
+        var userDTO = new UserDto() 
         { 
             Id = user.Id,
             Email = user.Email,
@@ -42,7 +42,7 @@ public class AuthenticationDAL : IAuthenticationDAL
         return userDTO;
     }
 
-    public UserDTO? GetUser(string email)
+    public UserDto? GetUser(string email)
     {
         var user = _dbContext.User
             .Where(u => u.Email == email)
@@ -51,7 +51,7 @@ public class AuthenticationDAL : IAuthenticationDAL
         if (user == null)
             return null;
 
-        var userDTO = new UserDTO()
+        var userDTO = new UserDto()
         {
             Id = user.Id,
             Email = user.Email,

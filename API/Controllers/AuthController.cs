@@ -30,6 +30,9 @@ public class AuthController : ControllerBase
     [HttpPost("google-login")]
     public async Task<IActionResult> GoogleLogin([FromBody] AccessTokenModel request)
     {
+        if (request.AccessToken == null)
+            return BadRequest();
+
         string? jwtToken = await _authenticationService.AuthenticateGoogle(request.AccessToken);
         if (jwtToken == null)
             return Unauthorized();

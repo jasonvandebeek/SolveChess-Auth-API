@@ -6,14 +6,14 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace SolveChess.Logic;
 
-public class JWTProvider
+public class JwtProvider
 {
 
     private readonly string _secretKey;
     private readonly string _issuer = "SolveChess Authenticator";
     private readonly string _audience = "SolveChess API";
 
-    public JWTProvider(string secretKey)
+    public JwtProvider(string secretKey)
     {
         _secretKey = secretKey;
     }

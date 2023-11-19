@@ -29,7 +29,7 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>(provid
 {
     var dbContextOptions = provider.GetRequiredService<DbContextOptions<AppDbContext>>();
 
-    return new AuthenticationService(new AuthenticationDAL(dbContextOptions), jwtSecret);
+    return new AuthenticationService(new AuthenticationDal(dbContextOptions), jwtSecret);
 });
 
 if(builder.Environment.IsDevelopment())

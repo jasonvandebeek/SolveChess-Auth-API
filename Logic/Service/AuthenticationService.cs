@@ -10,13 +10,13 @@ namespace SolveChess.Logic.Service;
 public class AuthenticationService : IAuthenticationService
 {
 
-    private readonly IAuthenticationDAL _authenticationDAL;
-    private readonly JWTProvider _jwtProvider;
+    private readonly IAuthenticationDal _authenticationDAL;
+    private readonly JwtProvider _jwtProvider;
 
-    public AuthenticationService(IAuthenticationDAL authenticaitonDAL, string jwtSecret)
+    public AuthenticationService(IAuthenticationDal authenticaitonDAL, string jwtSecret)
     {
         _authenticationDAL = authenticaitonDAL;
-        _jwtProvider = new JWTProvider(jwtSecret);
+        _jwtProvider = new JwtProvider(jwtSecret);
     }
 
     public async Task<string?> AuthenticateGoogle(string accessToken)
@@ -32,7 +32,7 @@ public class AuthenticationService : IAuthenticationService
         if(email == null) 
             return null;
 
-        UserDTO user = _authenticationDAL.GetUser(email) ?? _authenticationDAL.CreateUser(email, null, AuthType.GOOGLE);
+        UserDto user = _authenticationDAL.GetUser(email) ?? _authenticationDAL.CreateUser(email, null, AuthType.GOOGLE);
 
         return _jwtProvider.GenerateToken(user.Id);
     }

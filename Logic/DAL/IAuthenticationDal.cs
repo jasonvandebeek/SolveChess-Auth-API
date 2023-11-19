@@ -4,10 +4,10 @@ using SolveChess.Logic.Attributes;
 
 namespace SolveChess.Logic.DAL;
 
-public interface IAuthenticationDAL
+public interface IAuthenticationDal
 {
 
-    public UserDTO? GetUser(string email);
-    public UserDTO CreateUser(string email, string? password, AuthType authType);
+    public UserDto? GetUser(string email);
+    public UserDto CreateUser(string email, string? password, AuthType authType);
 
 }
