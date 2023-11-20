@@ -20,11 +20,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var mysqlConnectionString = Environment.GetEnvironmentVariable("SolveChess_MySQLConnectionString") ?? throw new MissingEnvVariableException("No connection string found in .env variables!");
-var jwtSecret = Environment.GetEnvironmentVariable("SolveChess_JwtSecret") ?? throw new MissingEnvVariableException("No jwt secret string found in .env variables!");
-
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
+    var mysqlConnectionString = Environment.GetEnvironmentVariable("SolveChess_MySQLConnectionString") ?? throw new MissingEnvVariableException("No connection string found in .env variables!");
+
     options.UseMySQL(mysqlConnectionString);
 });
 
@@ -37,6 +36,8 @@ builder.Services.AddScoped<IAuthenticationDal, AuthenticationDal>(provider =>
 
 builder.Services.AddScoped<IJwtProvider, JwtProvider>(options =>
 {
+    var jwtSecret = Environment.GetEnvironmentVariable("SolveChess_JwtSecret") ?? throw new MissingEnvVariableException("No jwt secret string found in .env variables!");
+
     return new JwtProvider(jwtSecret);
 });
 
@@ -62,6 +63,8 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    var jwtSecret = Environment.GetEnvironmentVariable("SolveChess_JwtSecret") ?? throw new MissingEnvVariableException("No jwt secret string found in .env variables!");
+
     var tokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -98,6 +101,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.UseCors("AllowOrigin");
+
+app.UseAuthentication();
 
 app.MapControllers();
 

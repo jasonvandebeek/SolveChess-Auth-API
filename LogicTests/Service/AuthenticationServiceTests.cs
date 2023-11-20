@@ -2,13 +2,11 @@
 using SolveChess.Logic.DAL;
 using SolveChess.Logic.DTO;
 using SolveChess.Logic.Interfaces;
-using SolveChess.Logic.Service;
 using System.Net;
 using Moq;
 using Moq.Protected;
-using SolveChess.Logic.Exceptions;
 
-namespace SolveChess.SolveChess.Logic.Service.Tests;
+namespace SolveChess.Logic.Service.Tests;
 
 [TestClass()]
 public class AuthenticationServiceTests
