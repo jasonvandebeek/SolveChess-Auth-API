@@ -9,6 +9,7 @@ pipeline {
         stage('Build .NET Application') {
             steps {
                 script {
+					sh "dotnet restore"
                     sh "dotnet build"
                 }
             }
