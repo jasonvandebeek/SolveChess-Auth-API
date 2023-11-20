@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using SolveChess.Logic.Attributes;
 using SolveChess.Logic.DAL;
 using SolveChess.Logic.DTO;
+using SolveChess.Logic.Exceptions;
 using SolveChess.Logic.Interfaces;
 using SolveChess.Logic.ServiceInterfaces;
 
@@ -24,19 +25,27 @@ public class AuthenticationService : IAuthenticationService
 
     public async Task<string?> AuthenticateGoogle(string accessToken)
     {
-        var response = await _httpClient.GetAsync($"https://www.googleapis.com/oauth2/v3/userinfo?access_token={accessToken}");
-        if (!response.IsSuccessStatusCode)
-            return null;
+        try
+        {
+            var response = await _httpClient.GetAsync($"https://www.googleapis.com/oauth2/v3/userinfo?access_token={accessToken}");
+            if (!response.IsSuccessStatusCode)
+                return null;
 
-        var content = await response.Content.ReadAsStringAsync();
-        JObject jsonObject = JObject.Parse(content);
-        string? email = jsonObject["email"]?.ToString();
-        if(email == null) 
-            return null;
+            var content = await response.Content.ReadAsStringAsync();
 
-        UserDto user = _authenticationDal.GetUser(email) ?? _authenticationDal.CreateUser(email, null, AuthType.GOOGLE);
+            JObject jsonObject = JObject.Parse(content);
+            string? email = jsonObject["email"]?.ToString();
+            if (email == null)
+                return null;
 
-        return _jwtProvider.GenerateToken(user.Id);
+            UserDto user = _authenticationDal.GetUser(email) ?? _authenticationDal.CreateUser(email, null, AuthType.GOOGLE);
+
+            return _jwtProvider.GenerateToken(user.Id);
+        }
+        catch(Exception exception)
+        {
+            throw new AuthenticationException("An exception occured while authenticating with google:" + exception.Message);
+        }
     }
 
 }

@@ -22,10 +22,10 @@ pipeline {
 		}
 		stage('SonarQube Analysis') {
 			steps {
-				
 				withSonarQubeEnv('SonarQube') {
 					sh "dotnet ${scannerHome}/SonarScanner.MSBuild.dll begin /k:\"jasonvandebeek_SolveChess-Auth-API_AYvoPvqhxO9MFOdCobMh\""
 					sh "dotnet build"
+					sh "dotnet-coverage collect 'dotnet test' -f xml  -o 'coverage.xml'"
 					sh "dotnet ${scannerHome}/SonarScanner.MSBuild.dll end"
 				}
 			}
