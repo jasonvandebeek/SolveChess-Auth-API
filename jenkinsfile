@@ -6,6 +6,30 @@ pipeline {
 		scannerHome = tool 'SonarScanner for MSBuild'		
     }
     stages {
+		
+        stage('Build .NET Application') {
+            steps {
+                script {
+					sh "dotnet clean"
+					sh "dotnet restore"
+                    sh "dotnet build"
+                }
+            }
+        }
+		stage('Run .NET Unit Tests') {
+			steps {
+				script {
+					sh "dotnet test UnitTests/UnitTests.csproj"
+				}
+			}
+		}
+		stage('Run .NET Integration Tests') {
+			steps {
+				script {
+					sh "dotnet test IntegrationTests/IntegrationTests.csproj"
+				}
+			}
+		}
 		stage('SonarQube Analysis') {
 			steps {
 				withSonarQubeEnv('SonarQube') {
@@ -16,32 +40,20 @@ pipeline {
 				}
 			}
 		}
-        stage('Build .NET Application') {
-            steps {
-                script {
-					sh "dotnet clean"
-					sh "dotnet restore"
-                    sh "dotnet build"
-                }
-            }
-        }
-		stage('Run .NET Tests') {
+		stage("SonarQube Quality Gate") {
 			steps {
 				script {
-					sh "dotnet test"
+					def qg = waitForQualityGate()
+					if (qg.status != 'OK') {
+						error "Pipeline aborted due to quality gate failure: ${qg.status}"
+					}
 				}
 			}
 		}
 		stage('Build Docker Image') {
 			steps {
 				script {
-					def testsPassed = currentBuild.resultIsBetterOrEqualTo('SUCCESS')
-
-					if (testsPassed) {
-						dockerImage = docker.build "${dockerRegistry}:${BUILD_NUMBER}"
-					} else {
-						error("Tests failed. Skipping Docker image build and publish.")
-					}
+					dockerImage = docker.build "${dockerRegistry}:${BUILD_NUMBER}"
 				}
 			}
 		}
