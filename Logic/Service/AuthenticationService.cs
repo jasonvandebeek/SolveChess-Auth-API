@@ -49,7 +49,7 @@ public class AuthenticationService : IAuthenticationService
                 };
 
                 await _authenticationDal.CreateUser(user);
-            };
+            }
 
             return _jwtProvider.GenerateToken(user.Id);
         }

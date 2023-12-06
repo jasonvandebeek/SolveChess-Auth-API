@@ -3,7 +3,7 @@
 namespace SolveChess.API.Exceptions;
 
 [Serializable]
-internal class InvalidJwtTokenException : Exception
+public class InvalidJwtTokenException : Exception
 {
     public InvalidJwtTokenException()
     {
