@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SolveChess.API.Exceptions;
 using SolveChess.API.Models;
 using SolveChess.Logic.ServiceInterfaces;
 
@@ -17,22 +18,17 @@ public class AuthController : ControllerBase
         _authenticationService = authenticationService;
     }
 
+    [Authorize]
     [HttpGet("userId")]
     public IActionResult GetUserId()
     {
-        string? userId = HttpContext.User.FindFirst("Id")?.Value;
-        if (userId == null)
-            return Ok(null);
-
+        string userId = GetUserIdFromCookies();
         return Ok(userId);
     }
 
     [HttpPost("google-login")]
     public async Task<IActionResult> GoogleLogin([FromBody] AccessTokenModel request)
     {
-        if (request.AccessToken == null)
-            return BadRequest();
-
         string? jwtToken = await _authenticationService.AuthenticateGoogle(request.AccessToken);
         if (jwtToken == null)
             return Unauthorized();
@@ -48,6 +44,12 @@ public class AuthController : ControllerBase
         Response.Cookies.Append("AccessToken", jwtToken, cookieOptions);
 
         return Ok();
+    }
+
+    private string GetUserIdFromCookies()
+    {
+        var userId = HttpContext.User.FindFirst("Id")?.Value ?? throw new InvalidJwtTokenException();
+        return userId;
     }
 
 }

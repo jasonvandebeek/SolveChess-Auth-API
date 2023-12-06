@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SolveChess.DAL.Model;
 using SolveChess.Logic.Attributes;
 using SolveChess.Logic.DAL;
-using SolveChess.Logic.DTO;
+using SolveChess.Logic.Models;
 
 namespace SolveChess.DAL;
 
@@ -17,41 +17,9 @@ public class AuthenticationDal : IAuthenticationDal
         _dbContext = new AppDbContext(options);
     }
 
-    public UserDto CreateUser(string email, string? password, AuthType authType)
+    public async Task CreateUser(User user)
     {
-        string guid = Guid.NewGuid().ToString();
-
-        var user = new User() { 
-            Id = guid,
-            Email = email, 
-            Password = password, 
-            AuthType = authType
-        };
-
-        _dbContext.User.Add(user);
-        _dbContext.SaveChanges();
-
-        var userDTO = new UserDto() 
-        { 
-            Id = user.Id,
-            Email = user.Email,
-            Password = user.Password,
-            AuthType = user.AuthType
-        };
-
-        return userDTO;
-    }
-
-    public UserDto? GetUser(string email)
-    {
-        var user = _dbContext.User
-            .Where(u => u.Email == email)
-            .FirstOrDefault();
-
-        if (user == null)
-            return null;
-
-        var userDTO = new UserDto()
+        var userModel = new UserModel()
         {
             Id = user.Id,
             Email = user.Email,
@@ -59,7 +27,22 @@ public class AuthenticationDal : IAuthenticationDal
             AuthType = user.AuthType
         };
 
-        return userDTO;
+        _dbContext.User.Add(userModel);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<User?> GetUser(string email)
+    {
+        var userModel = await _dbContext.User
+            .Where(u => u.Email == email)
+            .FirstOrDefaultAsync();
+
+        if (userModel == null)
+            return null;
+
+        var user = (User)userModel;
+
+        return user;
     }
 
 }

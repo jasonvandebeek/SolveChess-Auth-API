@@ -6,6 +6,6 @@ public class AccessTokenModel
 {
 
     [Required]
-    public string? AccessToken { get; set; }
+    public string AccessToken { get; set; } = null!;
 
 }

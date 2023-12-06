@@ -9,16 +9,16 @@ public class AppDbContext : DbContext
     {
     }
 
-    public DbSet<User> User { get; set; }
+    public DbSet<UserModel> User { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
 
-        modelBuilder.Entity<User>()
+        modelBuilder.Entity<UserModel>()
             .HasIndex(u => u.Email)
             .IsUnique();
 
-        modelBuilder.Entity<User>()
+        modelBuilder.Entity<UserModel>()
             .Property(u => u.Password)
             .IsRequired(false);
 

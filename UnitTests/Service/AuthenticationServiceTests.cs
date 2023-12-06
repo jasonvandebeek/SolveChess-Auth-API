@@ -1,10 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SolveChess.Logic.DAL;
-using SolveChess.Logic.DTO;
+using SolveChess.Logic.Models;
 using SolveChess.Logic.Interfaces;
 using System.Net;
 using Moq;
 using Moq.Protected;
+using SolveChess.Logic.Exceptions;
 
 namespace SolveChess.Logic.Service.Tests;
 
@@ -37,7 +38,7 @@ public class AuthenticationServiceTests
 
         // Simulate a user being retrieved from the data access layer
         authenticationDALMock.Setup(dal => dal.GetUser(It.IsAny<string>()))
-            .Returns(new UserDto { Id = "1", Email = "test@example.com" });
+            .ReturnsAsync((User?)new User { Id = "1", Email = "test@example.com" });
 
         // Simulate token generation and capture the arguments
         jwtProviderMock
@@ -57,7 +58,7 @@ public class AuthenticationServiceTests
     }
 
     [TestMethod]
-    public async Task AuthenticateGoogle_InvalidAccessToken_ReturnsNull()
+    public void AuthenticateGoogle_InvalidAccessToken_ThrowsException()
     {
         // Arrange
         var authenticationDALMock = new Mock<IAuthenticationDal>();
@@ -75,11 +76,12 @@ public class AuthenticationServiceTests
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Unauthorized));
 
-        // Act
-        var result = await service.AuthenticateGoogle(accessToken);
-
         // Assert
-        Assert.AreEqual(null, result);
+        Assert.ThrowsExceptionAsync<AuthenticationException>(async () =>
+        {
+            // Act
+            var result = await service.AuthenticateGoogle(accessToken);
+        });
     }
 
     [TestMethod]

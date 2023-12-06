@@ -1,13 +1,12 @@
 ﻿
-using SolveChess.Logic.DTO;
-using SolveChess.Logic.Attributes;
+using SolveChess.Logic.Models;
 
 namespace SolveChess.Logic.DAL;
 
 public interface IAuthenticationDal
 {
 
-    public UserDto? GetUser(string email);
-    public UserDto CreateUser(string email, string? password, AuthType authType);
+    public Task<User?> GetUser(string email);
+    public Task CreateUser(User user);
 
 }

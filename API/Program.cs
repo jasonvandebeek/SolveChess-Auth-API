@@ -41,8 +41,6 @@ builder.Services.AddScoped<IJwtProvider, JwtProvider>(options =>
     return new JwtProvider(jwtSecret);
 });
 
-builder.Services.AddScoped<HttpClient>();
-
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 if(builder.Environment.IsDevelopment())
@@ -98,11 +96,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.UseCors("AllowOrigin");
-
-app.UseAuthentication();
 
 app.MapControllers();
 
