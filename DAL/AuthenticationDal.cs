@@ -40,7 +40,13 @@ public class AuthenticationDal : IAuthenticationDal
         if (userModel == null)
             return null;
 
-        var user = (User)userModel;
+        var user = new User()
+        {
+            Id = userModel.Id,
+            Email = userModel.Email,
+            Password = userModel.Password,
+            AuthType = userModel.AuthType
+        };
 
         return user;
     }

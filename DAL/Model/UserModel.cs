@@ -1,14 +1,21 @@
 ﻿
-using SolveChess.Logic.Models;
+using SolveChess.Logic.Attributes;
 using System.ComponentModel.DataAnnotations;
 
 namespace SolveChess.DAL.Model;
 
-public class UserModel : User
+public class UserModel
 {
 
     [Key]
-    public new string Id { get; set; } = null!;
+    public string Id { get; set; } = null!;
+    [Required]
+    public string Email { get; set; } = null!;
+
+    public string? Password { get; set; }
+
+    [Required]
+    public AuthType AuthType { get; set; }
 
 }
 
