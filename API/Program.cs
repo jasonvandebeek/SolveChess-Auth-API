@@ -43,16 +43,13 @@ builder.Services.AddScoped<IJwtProvider, JwtProvider>(options =>
 
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
-if(builder.Environment.IsDevelopment())
+builder.Services.AddCors(options =>
 {
-    builder.Services.AddCors(options =>
-    {
-        options.AddPolicy("AllowOrigin", builder => builder.WithOrigins("https://localhost:3000")
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials());
-    });
-}
+    options.AddPolicy("AllowOrigin", builder => builder.WithOrigins(new []{ "https://localhost:3000", "https://solvechess.xyz" })
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials());
+});
 
 builder.Services.AddAuthentication(options =>
 {
