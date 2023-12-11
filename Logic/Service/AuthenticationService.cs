@@ -55,7 +55,7 @@ public class AuthenticationService : IAuthenticationService
         }
         catch(Exception exception)
         {
-            throw new AuthenticationException("An exception occured while authenticating with google: " + exception.Message);
+            throw new AuthenticationException("An exception occured while authenticating with google!", exception);
         }
     }
 
