@@ -23,6 +23,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     var mysqlConnectionString = Environment.GetEnvironmentVariable("SolveChess_MySQLConnectionString") ?? throw new MissingEnvVariableException("No connection string found in .env variables!");
+    Console.WriteLine($"Connection String: {mysqlConnectionString}");
 
     options.UseMySQL(mysqlConnectionString);
 });
