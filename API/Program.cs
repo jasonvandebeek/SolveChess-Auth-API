@@ -41,11 +41,14 @@ builder.Services.AddScoped<IJwtProvider, JwtProvider>(options =>
     return new JwtProvider(jwtSecret);
 });
 
+builder.Services.AddScoped<HttpClient>();
+
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowOrigin", builder => builder.WithOrigins("https://localhost:3000", "https://solvechess.xyz")
+    options.AddPolicy("AllowOrigin", builder => builder
+        .WithOrigins("https://localhost:3000", "https://solvechess.xyz")
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials());
