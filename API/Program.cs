@@ -45,7 +45,7 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowOrigin", builder => builder.WithOrigins(new []{ "https://localhost:3000", "https://solvechess.xyz" })
+    options.AddPolicy("AllowOrigin", builder => builder.WithOrigins("https://localhost:3000", "https://solvechess.xyz")
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials());
