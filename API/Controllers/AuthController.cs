@@ -38,7 +38,7 @@ public class AuthController : ControllerBase
             Expires = DateTime.Now.AddHours(1),
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict
+            SameSite = SameSiteMode.None
         };
 
         Response.Cookies.Append("AccessToken", jwtToken, cookieOptions);
