@@ -6,7 +6,8 @@ namespace SolveChess.Logic.DAL;
 public interface IAuthenticationDal
 {
 
-    public Task<User?> GetUser(string email);
+    public Task<User?> GetUserWithEmail(string email);
+    public Task<User?> GetUserWithId(string userId);
     public Task CreateUser(User user);
 
 }

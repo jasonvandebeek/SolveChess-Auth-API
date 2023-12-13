@@ -37,7 +37,7 @@ public class AuthenticationService : IAuthenticationService
             if (email == null)
                 return null;
 
-            User? user = await _authenticationDal.GetUser(email);
+            User? user = await _authenticationDal.GetUserWithEmail(email);
             if (user == null)
             {
                 user = new User()
@@ -59,10 +59,20 @@ public class AuthenticationService : IAuthenticationService
         }
     }
 
+    public async Task<bool> DoesUserExist(string userId)
+    {
+        var user = await _authenticationDal.GetUserWithId(userId);
+
+        if (user == null) 
+            return false;
+        
+        return true;
+    }
+
     private static string GetNewUserId()
     {
         return Guid.NewGuid().ToString();
     }
-
+    
 }
 

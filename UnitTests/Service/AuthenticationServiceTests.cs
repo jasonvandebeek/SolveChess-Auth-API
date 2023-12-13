@@ -37,7 +37,7 @@ public class AuthenticationServiceTests
             });
 
         // Simulate a user being retrieved from the data access layer
-        authenticationDALMock.Setup(dal => dal.GetUser(It.IsAny<string>()))
+        authenticationDALMock.Setup(dal => dal.GetUserWithEmail(It.IsAny<string>()))
             .ReturnsAsync((User?)new User { Id = "1", Email = "test@example.com" });
 
         // Simulate token generation and capture the arguments

@@ -46,6 +46,15 @@ public class AuthController : ControllerBase
         return Ok();
     }
 
+    [HttpGet("/user/{id}")]
+    public async Task<IActionResult> DoesUserExist(string id)
+    {
+        if (!await _authenticationService.DoesUserExist(id))
+            return NotFound();
+
+        return Ok(id);
+    }
+
     private string GetUserIdFromCookies()
     {
         var userId = HttpContext.User.FindFirst("Id")?.Value ?? throw new InvalidJwtTokenException();

@@ -37,7 +37,7 @@ public class AuthControllerTests
     }
 
     [TestMethod]
-    public async Task GetUserId_Returns200Ok_AndUserId()
+    public async Task GetUserId_Returns200OkAndUserId()
     {
         //Arrange
         var userId = "testUserId";
@@ -58,7 +58,7 @@ public class AuthControllerTests
     }
 
     [TestMethod]
-    public async Task GoogleLogin_Returns200Ok_AndJwtTokenCookie_AndUserIsMadeInDatabase()
+    public async Task GoogleLogin_Returns200OkAndJwtTokenCookieAndUserIsMadeInDatabase()
     {
         //Arrange
         var fakeGoogleAccessToken = new
