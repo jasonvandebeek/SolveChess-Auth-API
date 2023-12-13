@@ -51,6 +51,9 @@ public class AuthenticationService : IAuthenticationService
                 await _authenticationDal.CreateUser(user);
             }
 
+            if (user.AuthType != AuthType.GOOGLE)
+                return null;
+
             return _jwtProvider.GenerateToken(user.Id);
         }
         catch(Exception exception)

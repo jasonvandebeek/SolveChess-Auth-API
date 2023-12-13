@@ -8,6 +8,9 @@ using SolveChess.DAL.Model;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Newtonsoft.Json;
 using System.Text;
+using SolveChess.Logic.Models;
+using SolveChess.Logic.Attributes;
+using static Google.Apis.Requests.BatchRequest;
 
 namespace SolveChess.API.IntegrationTests;
 
@@ -15,29 +18,22 @@ namespace SolveChess.API.IntegrationTests;
 public class AuthControllerTests
 {
 
-    private readonly IJwtProvider _jwtProvider;
-    private readonly SolveChessWebApplicationFactory _factory;
-    private readonly AppDbContext _dbContext;
+    private IJwtProvider _jwtProvider = null!;
+    private SolveChessWebApplicationFactory _factory = null!;
+    private AppDbContext _dbContext = null!;
 
-    public AuthControllerTests()
+    [TestInitialize]
+    public void TestInitialize()
     {
         _factory = new SolveChessWebApplicationFactory();
 
-        var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase("TestDatabase")
-            .ConfigureWarnings(warnings =>
-            {
-                warnings.Ignore(InMemoryEventId.TransactionIgnoredWarning);
-            });
-
-        _dbContext = new AppDbContext(optionsBuilder.Options);
-
-        using var scope = _factory.Services.CreateScope();
+        var scope = _factory.Services.CreateScope();
         _jwtProvider = scope.ServiceProvider.GetRequiredService<IJwtProvider>();
+        _dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     }
 
     [TestMethod]
-    public async Task GetUserId_Returns200OkAndUserId()
+    public async Task GetUserIdTest_Returns200OkAndUserId()
     {
         //Arrange
         var userId = "testUserId";
@@ -58,7 +54,20 @@ public class AuthControllerTests
     }
 
     [TestMethod]
-    public async Task GoogleLogin_Returns200OkAndJwtTokenCookieAndUserIsMadeInDatabase()
+    public async Task GetUserIdTest_Returns401Unauthorized()
+    {
+        //Arrange
+        var client = _factory.CreateClient();
+
+        //Act
+        var response = await client.GetAsync("/auth/userId");
+
+        //Assert
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task GoogleLoginTest_Returns200OkAndJwtTokenCookieAndUserIsMadeInDatabase()
     {
         //Arrange
         var fakeGoogleAccessToken = new
@@ -83,6 +92,46 @@ public class AuthControllerTests
 
         var cookies = response.Headers.GetValues("Set-Cookie");
         Assert.IsTrue(cookies.Any(cookie => cookie.Contains("AccessToken")));
+    }
+
+    [TestMethod]
+    public async Task DoesUserExistTest_UserExistsReturns200OkAndUserId()
+    {
+        //Arrange
+        var userId = "200";
+
+        _dbContext.User.Add(new User() 
+        { 
+            Id = userId,
+            Email = "test@example.com",
+            AuthType = AuthType.GOOGLE
+        });
+
+        await _dbContext.SaveChangesAsync();
+
+        var client = _factory.CreateClient();
+
+        //Act
+        var response = await client.GetAsync($"/auth/user/{userId}");
+
+        //Arrange
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        Assert.AreEqual(userId, await response.Content.ReadAsStringAsync());
+    }
+
+    [TestMethod]
+    public async Task DoesUserExistTest_UserDoesntExistReturns404NotFound()
+    {
+        //Arrange
+        var userId = "200";
+
+        var client = _factory.CreateClient();
+
+        //Act
+        var response = await client.GetAsync($"/auth/user/{userId}");
+
+        //Arrange
+        Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
 
 }

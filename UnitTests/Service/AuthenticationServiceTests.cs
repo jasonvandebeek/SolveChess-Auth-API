@@ -6,6 +6,8 @@ using System.Net;
 using Moq;
 using Moq.Protected;
 using SolveChess.Logic.Exceptions;
+using SolveChess.Logic.Attributes;
+using System.Net.Http;
 
 namespace SolveChess.Logic.Service.Tests;
 
@@ -16,18 +18,16 @@ public class AuthenticationServiceTests
     [TestMethod]
     public async Task AuthenticateGoogle_ValidAccessToken_ReturnsToken()
     {
-        // Arrange
-        var authenticationDALMock = new Mock<IAuthenticationDal>();
+        //Arrange
+        var authenticationDalMock = new Mock<IAuthenticationDal>();
         var jwtProviderMock = new Mock<IJwtProvider>();
         var httpMessageHandlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
 
         var httpClient = new HttpClient(httpMessageHandlerMock.Object);
-        var service = new AuthenticationService(authenticationDALMock.Object, jwtProviderMock.Object, httpClient);
 
         var accessToken = "validAccessToken";
         var expectedToken = "generatedToken";
 
-        // Simulate a successful response from the Google API
         httpMessageHandlerMock
             .Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
@@ -36,68 +36,65 @@ public class AuthenticationServiceTests
                 Content = new StringContent("{\"email\": \"test@example.com\"}")
             });
 
-        // Simulate a user being retrieved from the data access layer
-        authenticationDALMock.Setup(dal => dal.GetUserWithEmail(It.IsAny<string>()))
-            .ReturnsAsync((User?)new User { Id = "1", Email = "test@example.com" });
+        authenticationDalMock.Setup(dal => dal.GetUserWithEmail(It.IsAny<string>()))
+            .ReturnsAsync((User?)new User { Id = "1", Email = "test@example.com", AuthType = AuthType.GOOGLE });
 
-        // Simulate token generation and capture the arguments
         jwtProviderMock
             .Setup(provider => provider.GenerateToken(It.IsAny<string>()))
             .Callback<string>(userId =>
             {
-                // Assert that the GenerateToken method was called with the correct user ID
                 Assert.AreEqual("1", userId);
             })
             .Returns(expectedToken);
 
-        // Act
+        var service = new AuthenticationService(authenticationDalMock.Object, jwtProviderMock.Object, httpClient);
+
+        //Act
         var result = await service.AuthenticateGoogle(accessToken);
 
-        // Assert
+        //Assert
         Assert.AreEqual(expectedToken, result);
     }
 
     [TestMethod]
     public void AuthenticateGoogle_InvalidAccessToken_ThrowsException()
     {
-        // Arrange
-        var authenticationDALMock = new Mock<IAuthenticationDal>();
+        //Arrange
+        var authenticationDalMock = new Mock<IAuthenticationDal>();
         var jwtProviderMock = new Mock<IJwtProvider>();
         var httpMessageHandlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
 
         var httpClient = new HttpClient(httpMessageHandlerMock.Object);
-        var service = new AuthenticationService(authenticationDALMock.Object, jwtProviderMock.Object, httpClient);
 
         var accessToken = "invalidAccessToken";
 
-        // Simulate an unsuccessful response from the Google API
         httpMessageHandlerMock
             .Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Unauthorized));
 
-        // Assert
+        var service = new AuthenticationService(authenticationDalMock.Object, jwtProviderMock.Object, httpClient);
+
+        //Assert
         Assert.ThrowsExceptionAsync<AuthenticationException>(async () =>
         {
-            // Act
+            //Act
             var result = await service.AuthenticateGoogle(accessToken);
         });
     }
 
     [TestMethod]
-    public async Task AuthenticateGoogle_NoEmailInGoogleResponse_ReturnsNull()
+    public async Task AuthenticateGoogleTest_NoEmailInGoogleResponse_ReturnsNull()
     {
-        // Arrange
-        var authenticationDALMock = new Mock<IAuthenticationDal>();
+        //Arrange
+        var authenticationDalMock = new Mock<IAuthenticationDal>();
         var jwtProviderMock = new Mock<IJwtProvider>();
         var httpMessageHandlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
 
         var httpClient = new HttpClient(httpMessageHandlerMock.Object);
-        var service = new AuthenticationService(authenticationDALMock.Object, jwtProviderMock.Object, httpClient);
-
+        
         var accessToken = "invalidAccessToken";
 
-        // Simulate an unsuccessful response from the Google API
         httpMessageHandlerMock
             .Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
@@ -106,11 +103,57 @@ public class AuthenticationServiceTests
                 Content = new StringContent("{}")
             });
 
-        // Act
+        var service = new AuthenticationService(authenticationDalMock.Object, jwtProviderMock.Object, httpClient);
+
+        //Act
         var result = await service.AuthenticateGoogle(accessToken);
 
-        // Assert
+        //Assert
         Assert.AreEqual(null, result);
+    }
+
+    [TestMethod]
+    public async Task DoesUserExistTest()
+    {
+        //Arrange
+        var authenticationDalMock = new Mock<IAuthenticationDal>();
+        authenticationDalMock.Setup(dal => dal.GetUserWithId(It.IsAny<string>()))
+            .ReturnsAsync((User?)new User { Id = "1", Email = "test@example.com", AuthType = AuthType.GOOGLE });
+
+        var jwtProviderMock = new Mock<IJwtProvider>();
+
+        var httpMessageHandlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+        var httpClient = new HttpClient(httpMessageHandlerMock.Object);
+
+        var service = new AuthenticationService(authenticationDalMock.Object, jwtProviderMock.Object, httpClient);
+
+        //Act
+        var result = await service.DoesUserExist("1");
+
+        //Assert
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    public async Task DoesUserExistTest_UserDoesntExist()
+    {
+        //Arrange
+        var authenticationDalMock = new Mock<IAuthenticationDal>();
+        authenticationDalMock.Setup(dal => dal.GetUserWithId(It.IsAny<string>()))
+            .ReturnsAsync(null as User);
+
+        var jwtProviderMock = new Mock<IJwtProvider>();
+
+        var httpMessageHandlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+        var httpClient = new HttpClient(httpMessageHandlerMock.Object);
+
+        var service = new AuthenticationService(authenticationDalMock.Object, jwtProviderMock.Object, httpClient);
+
+        //Act
+        var result = await service.DoesUserExist("1");
+
+        //Assert
+        Assert.IsFalse(result);
     }
 
 }

@@ -46,7 +46,7 @@ public class AuthController : ControllerBase
         return Ok();
     }
 
-    [HttpGet("/user/{id}")]
+    [HttpGet("user/{id}")]
     public async Task<IActionResult> DoesUserExist(string id)
     {
         if (!await _authenticationService.DoesUserExist(id))

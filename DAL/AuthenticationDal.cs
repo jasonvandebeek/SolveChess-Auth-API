@@ -18,48 +18,19 @@ public class AuthenticationDal : IAuthenticationDal
 
     public async Task CreateUser(User user)
     {
-        var userModel = new UserModel()
-        {
-            Id = user.Id,
-            Email = user.Email,
-            Password = user.Password,
-            AuthType = user.AuthType
-        };
-
-        _dbContext.User.Add(userModel);
+        _dbContext.User.Add(user);
         await _dbContext.SaveChangesAsync();
     }
 
     public async Task<User?> GetUserWithEmail(string email)
     {
-        var userModel = await _dbContext.User.FirstOrDefaultAsync(u => u.Email == email);
-
-        if (userModel == null)
-            return null;
-
-        return GetUser(userModel);
+        var user = await _dbContext.User.FirstOrDefaultAsync(u => u.Email == email);
+        return user;
     }
 
     public async Task<User?> GetUserWithId(string userId)
     {
-        var userModel = await _dbContext.User.FirstOrDefaultAsync(u  => u.Id == userId);
-
-        if (userModel == null)
-            return null;
-
-        return GetUser(userModel);
-    }
-
-    private User GetUser(UserModel userModel)
-    {
-        var user = new User()
-        {
-            Id = userModel.Id,
-            Email = userModel.Email,
-            Password = userModel.Password,
-            AuthType = userModel.AuthType
-        };
-
+        var user = await _dbContext.User.FirstOrDefaultAsync(u  => u.Id == userId);
         return user;
     }
 

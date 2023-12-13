@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SolveChess.Logic.Models;
 
 namespace SolveChess.DAL.Model;
 
@@ -9,19 +10,20 @@ public class AppDbContext : DbContext
     {
     }
 
-    public DbSet<UserModel> User { get; set; }
+    public DbSet<User> User { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<User>()
+            .HasKey(u => u.Id);
 
-        modelBuilder.Entity<UserModel>()
+        modelBuilder.Entity<User>()
             .HasIndex(u => u.Email)
             .IsUnique();
 
-        modelBuilder.Entity<UserModel>()
+        modelBuilder.Entity<User>()
             .Property(u => u.Password)
             .IsRequired(false);
-
     }
 
 }
