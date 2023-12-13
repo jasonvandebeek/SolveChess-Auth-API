@@ -123,7 +123,7 @@ public class AuthControllerTests
     public async Task DoesUserExistTest_UserDoesntExistReturns404NotFound()
     {
         //Arrange
-        var userId = "200";
+        var userId = "300";
 
         var client = _factory.CreateClient();
 
