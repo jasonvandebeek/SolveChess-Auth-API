@@ -56,11 +56,11 @@ public class AuthController : ControllerBase
         return Ok(id);
     }
 
-    private void AddAccessToken(string accessToken, DateTime expirationData)
+    private void AddAccessToken(string accessToken, DateTime expirationDate)
     {
         var cookieOptions = new CookieOptions
         {
-            Expires = DateTime.Now.AddYears(-1),
+            Expires = expirationDate,
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.None
