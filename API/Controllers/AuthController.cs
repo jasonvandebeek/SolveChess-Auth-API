@@ -34,15 +34,7 @@ public class AuthController : ControllerBase
         if (jwtToken == null)
             return Unauthorized();
 
-        var cookieOptions = new CookieOptions
-        {
-            Expires = DateTime.Now.AddHours(1),
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None
-        };
-
-        Response.Cookies.Append("AccessToken", jwtToken, cookieOptions);
+        AddAccessToken(jwtToken, DateTime.Now.AddHours(1));
 
         return Ok();
     }
@@ -50,16 +42,8 @@ public class AuthController : ControllerBase
     [HttpPost("logout")]
     public IActionResult Logout()
     {
-        var cookieOptions = new CookieOptions
-        {
-            Expires = DateTime.Now.AddYears(-1),
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None
-        };
+        AddAccessToken("", DateTime.Now.AddYears(-1));
 
-        Response.Cookies.Append("AccessToken", "", cookieOptions);
-    
         return Ok();
     }
 
@@ -70,6 +54,19 @@ public class AuthController : ControllerBase
             return NotFound();
 
         return Ok(id);
+    }
+
+    private void AddAccessToken(string accessToken, DateTime expirationData)
+    {
+        var cookieOptions = new CookieOptions
+        {
+            Expires = DateTime.Now.AddYears(-1),
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None
+        };
+
+        Response.Cookies.Append("AccessToken", accessToken, cookieOptions);
     }
 
     private string GetUserIdFromCookies()
