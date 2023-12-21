@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using SolveChess.API.Exceptions;
 using SolveChess.API.Models;
 using SolveChess.Logic.ServiceInterfaces;
@@ -43,6 +44,22 @@ public class AuthController : ControllerBase
 
         Response.Cookies.Append("AccessToken", jwtToken, cookieOptions);
 
+        return Ok();
+    }
+
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        var cookieOptions = new CookieOptions
+        {
+            Expires = DateTime.Now.AddYears(-1),
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None
+        };
+
+        Response.Cookies.Append("AccessToken", "", cookieOptions);
+    
         return Ok();
     }
 
