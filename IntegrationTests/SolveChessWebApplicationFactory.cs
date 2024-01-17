@@ -53,6 +53,7 @@ internal class SolveChessWebApplicationFactory : WebApplicationFactory<Program>
 
             services.AddScoped(_ => httpClient);
 
+            Environment.SetEnvironmentVariable("SolveChess_CorsUrls", "https://localhost:3000");
             Environment.SetEnvironmentVariable("SolveChess_JwtSecret", "TestSecretKeyForJwtTokensInIntegrationTests");
         });
     }
