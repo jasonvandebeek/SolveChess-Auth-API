@@ -3,7 +3,7 @@
 namespace SolveChess.Logic.Exceptions;
 
 [Serializable]
-public class AuthenticationException : Exception
+public class AuthenticationException : SolveChessBaseException
 {
     public AuthenticationException()
     {

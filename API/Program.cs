@@ -10,6 +10,7 @@ using SolveChess.API.Exceptions;
 using SolveChess.Logic.DAL;
 using SolveChess.Logic.Interfaces;
 using SolveChess.Logic;
+using SolveChess.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -98,8 +99,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
-
 app.UseAuthorization();
+
+app.UseExceptionHandlingMiddleware();
 
 app.UseCors("AllowOrigin");
 
